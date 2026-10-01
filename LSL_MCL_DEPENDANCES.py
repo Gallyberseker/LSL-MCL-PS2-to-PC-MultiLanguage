@@ -16,6 +16,10 @@ class LSL_MCL_Dependances:
     @staticmethod
     def _installer(paquet, mise_a_jour=False):
         """Installe un paquet si le téléchargement est autorisé ; renvoie un booléen."""
+        if getattr(sys, "frozen", False):
+            print("[DEPENDANCE] Paquet absent du programme :", paquet)
+            print("[DEPENDANCE] Recompilez le programme avec COMPILER_WINDOWS.bat.")
+            return False
         if not V.ACTIVE_TELECHARGEMENT_OUTILS:
             print("[DEPENDANCE] Installation automatique désactivée.")
             return False

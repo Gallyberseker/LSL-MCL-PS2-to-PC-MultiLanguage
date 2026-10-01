@@ -143,6 +143,12 @@ class InstallationOutils:
     @classmethod
     def installer_sfd_muxer(cls):
         """Installe le module SFD Muxer local et récupère son lanceur si disponible."""
+        if getattr(sys, 'frozen', False):
+            fichier = V.OUTILS / 'sfd-muxer.exe'
+            if fichier.is_file():
+                print('[OUTIL OK] sfd-muxer :', fichier)
+                return fichier
+            raise RuntimeError('sfd-muxer.exe absent : recompilation Windows nécessaire.')
         if not V.ACTIVE_TELECHARGEMENT_OUTILS:
             print('[OUTILS] Téléchargement désactivé : installer_sfd_muxer ignoré.')
             fichier = V.OUTILS / 'sfd-muxer.exe'
@@ -168,6 +174,8 @@ class InstallationOutils:
     @staticmethod
     def installer_module_local(module_pip):
         """Installe un paquet dans VENDOR et rend ce dossier importable."""
+        if getattr(sys, 'frozen', False):
+            raise RuntimeError('Installation pip indisponible dans un EXE : recompilez le programme.')
         if not V.ACTIVE_TELECHARGEMENT_OUTILS:
             raise RuntimeError('Téléchargement désactivé : installer_module_local')
         V.VENDOR.mkdir(parents=True, exist_ok=True)

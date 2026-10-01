@@ -5,6 +5,57 @@ import LSL_MCL_VARIABLES as V
 import LSL_MCL_TEXTES
 from LSL_MCL_GEOMETRIE_POLICES import appliquer_polices_par_langue
 
+def remplacer_rectangle_bloc(bloc, ancien, nouveau, nombre):
+    """Remplace les coordonnées sans changer la taille binaire du bloc."""
+    if len(nouveau) <= len(ancien):
+        return bloc.replace(ancien, nouveau.ljust(len(ancien), b' '), nombre)
+
+    motif = re.compile(
+        rb'(?m)^([ \t]*)'
+        + re.escape(ancien)
+        + rb'([ \t]*)(?=\r?$)'
+    )
+    correspondances = list(motif.finditer(bloc))[:nombre]
+
+    if len(correspondances) != nombre:
+        raise ValueError(
+            'Rectangle trop long : ligne complète introuvable ; '
+            'aucune écriture effectuée.'
+        )
+
+    remplacements = []
+    for correspondance in correspondances:
+        indentation = correspondance.group(1)
+        espaces_fin = correspondance.group(2)
+        surplus = len(nouveau) - len(ancien)
+
+        if len(indentation) + len(espaces_fin) < surplus:
+            raise ValueError(
+                'Rectangle trop long : espaces insuffisants sur la ligne ; '
+                'aucune écriture effectuée.'
+            )
+
+        # Réutiliser d’abord les espaces en fin de ligne.
+        retirer_fin = min(surplus, len(espaces_fin))
+        espaces_fin = espaces_fin[:len(espaces_fin) - retirer_fin]
+        retirer_debut = surplus - retirer_fin
+        indentation = indentation[retirer_debut:]
+
+        remplacements.append((
+            correspondance.start(),
+            correspondance.end(),
+            indentation + nouveau + espaces_fin,
+        ))
+
+    resultat = bloc
+    for debut, fin, remplacement in reversed(remplacements):
+        resultat = resultat[:debut] + remplacement + resultat[fin:]
+
+    if len(resultat) != len(bloc):
+        raise RuntimeError('Taille du bloc modifiée : remplacement annulé.')
+
+    return resultat
+
 def patch_geometrie_v3(data_root, langue_cible=None):
     """
         Géométrie PC entièrement réglable PAR LANGUE : EN / FR / DE / ES / IT / RU.
@@ -195,15 +246,6 @@ def patch_geometrie_v3(data_root, langue_cible=None):
         ancien = encoder_rectangle(ancien_rect).encode('ascii')
         nouveau_txt = encoder_rectangle(nouveau_rect).encode('ascii')
 
-        if len(nouveau_txt) > len(ancien):
-            compteurs['AMBIGU'] += 1
-            print(
-                '[REFUSE TAILLE]', etiquette,
-                '-', nouveau_txt.decode(),
-                f'({len(nouveau_txt)} octets > {len(ancien)})',
-            )
-            return data
-
         nouveau = nouveau_txt.ljust(len(ancien), b' ')
         objets = blocs_objets_namespace(data, namespace)
         if nom_objet is not None:
@@ -223,7 +265,9 @@ def patch_geometrie_v3(data_root, langue_cible=None):
                 compteurs['INTROUVABLE'] += 1
                 print('[INTROUVABLE RECTANGLE]', etiquette, '| objet =', f"{objet['type']}/{objet['name']}", '| attendu =', attendu, '| trouve =', nb_old)
                 return data
-            bloc = bloc.replace(ancien, nouveau, attendu)
+            bloc = remplacer_rectangle_bloc(
+                bloc, ancien, nouveau_txt, attendu
+            )
             data = data[:objet['debut']] + bloc + data[objet['fin']:]
             compteurs['PATCH'] += attendu
             afficher_patch_rectangle(etiquette, attendu, ancien, nouveau_txt, [objet])
@@ -253,7 +297,9 @@ def patch_geometrie_v3(data_root, langue_cible=None):
         cibles = candidats_old[:attendu]
         for objet in sorted(cibles, key=lambda x: x['debut'], reverse=True):
             bloc = data[objet['debut']:objet['fin']]
-            bloc = bloc.replace(ancien, nouveau, 1)
+            bloc = remplacer_rectangle_bloc(
+                bloc, ancien, nouveau_txt, 1
+            )
             data = data[:objet['debut']] + bloc + data[objet['fin']:]
         compteurs['PATCH'] += len(cibles)
         afficher_patch_rectangle(etiquette, len(cibles), ancien, nouveau_txt, cibles if len(cibles) <= 8 else [])

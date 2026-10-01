@@ -1,5 +1,6 @@
 """Options, chemins et état partagé du moteur Larry MCL."""
 from pathlib import Path
+import sys
 import re
 import struct
 
@@ -76,7 +77,8 @@ GAME_NAME = ("Leisure Suit Larry - Magna Cum Laude "
              "Uncut and Uncensored")
 
 # La racine reste celle de ce fichier, quel que soit le répertoire courant.
-ROOT = Path(__file__).resolve().parent
+ROOT = (Path(sys.executable).resolve().parent if getattr(sys, "frozen", False)
+        else Path(__file__).resolve().parent)
 
 VENDOR = ROOT / "_vendor"
 
