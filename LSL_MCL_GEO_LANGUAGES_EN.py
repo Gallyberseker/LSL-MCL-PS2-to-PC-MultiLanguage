@@ -228,6 +228,18 @@ PROFIL_GEOMETRIE = {
     # EN [LIVRE NOIR] [grand titre LIVRE NOIR / TENUES seul] [TAILLE HORIZONTALE DU TEXTE BLANC] ; Levels/*.JAM / Costume / ScrTitle
     'tenue_titre_actif_x': 0.3,
 
+    # EN [LIVRE NOIR] [TENUES] [indication en bas de l’écran page ; position et dimensions de cet élément] page, haut/bas et retour.
+
+    'tenue_aide_page_rectangle': (0.0, 353.0, 170.0, 385.0),
+
+    # EN [LIVRE NOIR] [TENUES] [indication en bas de l’écran page ; position et dimensions de cet élément] page, haut/bas et retour.
+
+    'tenue_aide_haut_bas_rectangle': (171.0, 353.0, 340.0, 385.0),
+
+    # EN [LIVRE NOIR] [TENUES] [indication en bas de l’écran page ; position et dimensions de cet élément] page, haut/bas et retour.
+
+    'tenue_aide_retour_rectangle': (341.0, 353.0, 512.0, 385.0),
+
     # EN ===== LIVRE NOIR > OBJETS =====
     # EN [LIVRE NOIR > OBJETS] [onglet actif ; position et dimensions de cet élément] [OFFSET X1,Y1 ; TAILLE X2-X1,Y2-Y1] ; [DU FICHIER : Levels/*.JAM] > Invntory
     'objet_onglet_actif_rectangle': (131.0, -29.0, 194.0, 2.0),

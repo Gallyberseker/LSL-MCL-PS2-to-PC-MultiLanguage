@@ -424,7 +424,6 @@ PROFIL_GEOMETRIE = {
     
     'tenue_aide_retour_rectangle': (381.0, 353.0, 552.0, 385.0),
 
-
     # RU ===== LIVRE NOIR > OBJETS =====
 
     # RU [LIVRE NOIR > OBJETS] [onglet actif ; position et dimensions de cet élément] [OFFSET X1,Y1 ; TAILLE X2-X1,Y2-Y1] ; [DU FICHIER : Levels/\\\*.JAM] > Invntory
